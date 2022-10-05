@@ -19,7 +19,8 @@ enum class WsError(
     INVALID_PAYLOAD(4002, "The sender send invalid payload"),
     SENDER_DISCONNECT(4003, "Sender disconnected"),
     SENDER_ALREADY_CONNECTED(4004, "A sender is already connected to this podcast"),
-    SENDER_TIMEOUT(4005, "No sender connected during the time limit");
+    SENDER_TIMEOUT(4005, "No sender connected during the time limit"),
+    UNKNOWN_PODCAST(4006, "No podcast found");
 
     val asCloseReason get():CloseReason = CloseReason(code, message)
 

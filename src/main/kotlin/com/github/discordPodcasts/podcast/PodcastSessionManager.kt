@@ -29,14 +29,9 @@ class PodcastSessionManager(
      */
     fun listen() = podcast.coroutineScope.launch {
         sender.getOrNull()?.incoming?.receiveAsFlow()?.collect {
-            // Wrong payload
+            // Invalid payload
             if (it.data.size <= minFrameBytesSize) return@collect podcast.destroy(WsError.INVALID_PAYLOAD)
 
-            /*
-            val bytes = ByteReadPacket(it.buffer)
-            val isAudio = bytes.readBytes(1).first() == 0.toByte()
-            val nonce = bytes.readBytes(24)
-            */
             broadcast(it.data)
         } ?: throw IllegalStateException("Sender is not initialized")
     }

@@ -22,7 +22,6 @@ import kotlin.time.Duration.Companion.seconds
 data class Podcast(
     var id: String,
     val senderAuthentication: Authentication,
-    val server: ApplicationEngine,
     var activeSince: Long? = null,
     val coroutineScope: CoroutineScope = CoroutineScope(ForkJoinPool.commonPool().asCoroutineDispatcher())
 ) {
@@ -31,21 +30,8 @@ data class Podcast(
     val pending: Boolean get() = activeSince == null
 
     init {
-        server.application.apply {
-            install(WebSockets)
-
-            // Set up websocket endpoint
-            routing {
-                webSocket("/") { sessions.createSession(this) }
-            }
-            verifyConnection()
-        }
+        verifyConnection()
     }
-
-    /**
-     * Starts the web server and blocks the code as long as the server is running.
-     */
-    fun startServer(): ApplicationEngine = server.start(true)
 
     /**
      * Stops the web server and removes the podcast from [Podcasts.active].
@@ -53,8 +39,7 @@ data class Podcast(
     suspend fun destroy(reason: WsError) {
         Podcasts.active.remove(id)
         sessions.disconnectAll(reason)
-        server.stop()
-        logInfo("podcast-$id") { "Closed server" }
+        logInfo("podcast-$id") { "Closed podcast" }
     }
 
     /**

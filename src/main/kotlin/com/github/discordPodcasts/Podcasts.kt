@@ -8,14 +8,11 @@ object Podcasts {
 
     val active = mutableMapOf<String, Podcast>()
 
-    fun createPotentialPodcast(
-        server: ApplicationEngine,
-        senderAuthentication: Authentication
-    ): Podcast {
+    fun createPotentialPodcast(senderAuthentication: Authentication): Podcast {
         var id = generateId()
         while (active.containsKey(id)) id = generateId()
 
-        val podcast = Podcast(id, senderAuthentication, server)
+        val podcast = Podcast(id, senderAuthentication)
         active[id] = podcast
         return podcast
     }

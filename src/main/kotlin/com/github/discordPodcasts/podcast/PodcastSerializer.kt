@@ -13,8 +13,6 @@ import kotlinx.serialization.encoding.encodeStructure
 object PodcastSerializer : KSerializer<Podcast> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("podcast") {
         element("id", PrimitiveSerialDescriptor("id", PrimitiveKind.STRING))
-        element("port", PrimitiveSerialDescriptor("port", PrimitiveKind.INT))
-        element("ip", PrimitiveSerialDescriptor("ip", PrimitiveKind.STRING))
         element("activeSince", PrimitiveSerialDescriptor("activeSince", PrimitiveKind.LONG))
     }
 
@@ -25,10 +23,7 @@ object PodcastSerializer : KSerializer<Podcast> {
     override fun serialize(encoder: Encoder, value: Podcast) {
         encoder.encodeStructure(descriptor) {
             encodeStringElement(descriptor, 0, value.id)
-            val connector = value.server.environment.connectors.first()
-            encodeIntElement(descriptor, 1, connector.port)
-            encodeStringElement(descriptor, 2, connector.host)
-            encodeNullableSerializableElement(descriptor, 3, Long.serializer(), value.activeSince)
+            encodeNullableSerializableElement(descriptor, 1, Long.serializer(), value.activeSince)
         }
     }
 
