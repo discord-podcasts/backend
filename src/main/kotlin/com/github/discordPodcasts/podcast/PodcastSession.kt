@@ -53,10 +53,10 @@ class PodcastSession(
         }
     }
 
-    private fun onReceiverConnect() {
+    private suspend fun onReceiverConnect() {
         val host = session.call.request.origin.host
         logInfo("podcast-${podcast.id}") { "Client $host connected" }
-        podcast.sessions.receivers.add(session)
+        podcast.sessions.addReceiver(session)
     }
 
     private suspend fun handleClose() {
@@ -72,7 +72,7 @@ class PodcastSession(
             val reason = session.closeReason.await()
             val host = session.call.request.origin.host
             logInfo("podcast-${podcast.id}") { "Client $host disconnected: ${reason?.message ?: "No reason"}" }
-            podcast.sessions.receivers.remove(session)
+            podcast.sessions.removeReceiver(session)
         }
     }
 

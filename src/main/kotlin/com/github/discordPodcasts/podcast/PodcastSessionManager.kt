@@ -10,19 +10,26 @@ import io.ktor.util.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.nio.ByteBuffer
 
 class PodcastSessionManager(
     val podcast: Podcast,
     var sender: CompletableDeferred<DefaultWebSocketServerSession> = CompletableDeferred(),
-    val receivers: MutableList<DefaultWebSocketServerSession> = mutableListOf()
+    private val receivers: MutableList<DefaultWebSocketServerSession> = mutableListOf()
 ) {
     private val minFrameBytesSize = 1 + 24 // Is audio + nonce
+    private val receiversMutex = Mutex()
 
     suspend fun createSession(session: DefaultWebSocketServerSession) {
         PodcastSession(podcast, session).load()
     }
+
+    suspend fun addReceiver(client: DefaultWebSocketServerSession) = receiversMutex.withLock { receivers.add(client) }
+    suspend fun removeReceiver(client: DefaultWebSocketServerSession) = receiversMutex.withLock { receivers.add(client) }
 
     /**
      * Start listening to the senders input and [broadcast] it to the senders.
@@ -42,7 +49,9 @@ class PodcastSessionManager(
      * @param bytes The byte array to send.
      */
     private suspend fun broadcast(bytes: ByteArray) {
-        receivers.forEach { it.send(bytes) }
+        receivers.toList()
+            .filter { it.isActive }
+            .forEach { it.send(bytes) }
     }
 
     /**
@@ -61,9 +70,9 @@ class PodcastSessionManager(
             put(eventAsBytes)
         }.moveToByteArray()
         broadcast(bytes)
-        receivers.forEach { it.close() }
-        receivers.clear()
-
+        receiversMutex.withLock {
+            receivers.onEach { it.close() }.clear()
+        }
         // Give sender close information
         sender.getOrNull()?.apply {
             send(eventAsBytes)
