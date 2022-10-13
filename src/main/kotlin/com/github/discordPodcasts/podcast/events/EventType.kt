@@ -11,7 +11,8 @@ import kotlinx.serialization.encoding.Encoder
 @Serializable(with = EventType.Serializer::class)
 enum class EventType(val identifier: Short) {
     HELLO(0),
-    DISCONNECT(1);
+    DISCONNECT(1),
+    UNKNOWN(-1);
 
     internal object Serializer : KSerializer<EventType> {
         override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("event_type", PrimitiveKind.SHORT)
