@@ -1,4 +1,4 @@
-package com.github.discordPodcasts.podcast.events
+package com.github.discordPodcasts.podcast.gateway.events
 
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json

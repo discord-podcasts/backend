@@ -14,6 +14,8 @@ object PodcastSerializer : KSerializer<Podcast> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("podcast") {
         element("id", PrimitiveSerialDescriptor("id", PrimitiveKind.STRING))
         element("host", PrimitiveSerialDescriptor("host", PrimitiveKind.STRING))
+        element("ip", PrimitiveSerialDescriptor("ip", PrimitiveKind.STRING))
+        element("port", PrimitiveSerialDescriptor("port", PrimitiveKind.INT))
         element("activeSince", PrimitiveSerialDescriptor("activeSince", PrimitiveKind.LONG))
     }
 
@@ -23,9 +25,12 @@ object PodcastSerializer : KSerializer<Podcast> {
 
     override fun serialize(encoder: Encoder, value: Podcast) {
         encoder.encodeStructure(descriptor) {
-            encodeStringElement(descriptor, 0, value.id)
-            encodeStringElement(descriptor, 1, value.senderAuthentication.id)
-            encodeNullableSerializableElement(descriptor, 2, Long.serializer(), value.activeSince)
+            var i = 0
+            encodeStringElement(descriptor, i++, value.id)
+            encodeStringElement(descriptor, i++, value.hostAuth.id)
+            encodeStringElement(descriptor, i++, value.gateway.socketAddress.hostname)
+            encodeIntElement(descriptor, i++, value.gateway.socketAddress.port)
+            encodeNullableSerializableElement(descriptor, i++, Long.serializer(), value.activeSince)
         }
     }
 

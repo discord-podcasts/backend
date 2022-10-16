@@ -3,14 +3,13 @@ package com.github.discordPodcasts
 import com.github.discordPodcasts.routes.createPodcast.createPodcast
 import com.github.discordPodcasts.routes.getPodcast.getPodcast
 import com.github.discordPodcasts.routes.listPodcasts.listPodcasts
-import com.github.discordPodcasts.utility.WsError
-import com.github.discordPodcasts.utility.closeWithError
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import io.ktor.server.plugins.*
 import io.ktor.server.plugins.contentnegotiation.*
-import io.ktor.server.request.*
+import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import loadAccountManager
@@ -22,14 +21,13 @@ fun main() {
         install(ContentNegotiation) { json() }
 
         routing {
+            get("/ip") {
+                var ip = call.request.origin.host
+                if (call.request.origin.host == "127.0.0.1") ip = "91.21.69.151"
+                call.respond(ip)
+            }
             get("/podcast") { getPodcast() }
             post("/podcast") { createPodcast() }
-            webSocket("/") {
-                val podcastId = call.request.queryParameters["id"]
-
-                if (podcastId !in Podcasts.active.keys) return@webSocket closeWithError(WsError.UNKNOWN_PODCAST)
-                Podcasts.active[podcastId]?.sessions?.createSession(this)
-            }
             get("/list") { listPodcasts() }
         }
 

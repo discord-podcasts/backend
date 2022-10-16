@@ -1,4 +1,4 @@
-package com.github.discordPodcasts.podcast.events
+package com.github.discordPodcasts.podcast.gateway.events
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -10,8 +10,9 @@ import kotlinx.serialization.encoding.Encoder
 
 @Serializable(with = EventType.Serializer::class)
 enum class EventType(val identifier: Short) {
-    HELLO(0),
-    DISCONNECT(1),
+    IDENTIFY(0),
+    HELLO(1),
+    READY(2),
     UNKNOWN(-1);
 
     internal object Serializer : KSerializer<EventType> {
